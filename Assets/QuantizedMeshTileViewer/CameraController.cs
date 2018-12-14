@@ -41,6 +41,8 @@ public class CameraController : MonoBehaviour
     /// </summary>
     private bool looking = false;
 
+    GameObject currentlySelected;
+
     void Start()
     {
         _target = anchors[0].transform;
@@ -57,7 +59,36 @@ public class CameraController : MonoBehaviour
         Zoom(); //rotates between vantage points
 
         PanRotate();
+
+        SelectObject();
         
+    }
+
+    private void SelectObject()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hitInfo = new RaycastHit();
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo) && hitInfo.transform.tag == "Hub")
+            {
+                if (currentlySelected != null) //clear selection
+                {
+                    currentlySelected.GetComponentInChildren<TMPro.TextMeshPro>().color = Color.black;
+                    currentlySelected = null;
+                }
+
+                currentlySelected = hitInfo.transform.gameObject;
+                currentlySelected.GetComponentInChildren<TMPro.TextMeshPro>().color = Color.green;
+            }
+            else
+            {
+                if (currentlySelected != null) //clear selection
+                {
+                    currentlySelected.GetComponentInChildren<TMPro.TextMeshPro>().color = Color.black;
+                    currentlySelected = null;
+                }
+            }
+        }
     }
 
     void OnDisable()

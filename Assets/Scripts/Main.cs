@@ -11,7 +11,9 @@ public class Main : MonoBehaviour
     [SerializeField]
     Vector3 offset = new Vector3(113200, 0, 477000);
     public GameObject[] markers;
-
+    public float thresholdEdu = 100;
+    public float thresholdMedical = 100;
+    public Material[] familyStyles;
   
     public void CreateMap() {
         ClearData();
@@ -32,8 +34,6 @@ public class Main : MonoBehaviour
         Destroy(folder);
         folder = GameObject.Find("families");
         Destroy(folder);
-
-      
     }
 
     void LoadCustomData()
@@ -51,6 +51,34 @@ public class Main : MonoBehaviour
 
         //read hub shapefiles
         ReadShapes(Application.dataPath + "/Data/hubShapes/");
+
+        //Apply style on families
+        ApplyStyleOnFamilies();
+
+    }
+
+    public void ApplyStyleOnFamilies()
+    {
+        foreach (var f in families)
+        {
+            //both bad
+            if ((f.Hubs[0].HubDist > thresholdMedical) && (f.Hubs[1].HubDist > thresholdEdu))
+            {
+                f.Go.GetComponent<MeshRenderer>().material = familyStyles[2];
+            }
+            else
+            {
+                //one bad
+                if (f.Hubs[0].HubDist > thresholdMedical || f.Hubs[1].HubDist > thresholdEdu)
+                {
+                    f.Go.GetComponent<MeshRenderer>().material = familyStyles[1];
+                }
+                else //both good
+                {
+                    f.Go.GetComponent<MeshRenderer>().material = familyStyles[0];
+                }
+            }
+        }
     }
 
     private void ReadShapes(string path)
@@ -73,11 +101,14 @@ public class Main : MonoBehaviour
                 var go =Instantiate(markers[1], new Vector3((float) h.Shape.X - offset.x, (float) h.Shape.Z, (float) h.Shape.Y - offset.z), Quaternion.Euler(0, 0, 0));
                 go.transform.parent = folder.transform;
                 go.AddComponent<ShapeAttributes>().attributes = h.Metadata;
+                go.GetComponentInChildren<TMPro.TextMeshPro>().text = h.Metadata["Poi_Name"];
 
                 //hack 
                 if (h.Metadata["Poi_Name"].Contains("FONS VITAE LYCEUM RKSG"))
-                    go.transform.position = new Vector3(go.transform.position.x, -15f, go.transform.position.z);
-               
+                {
+                    go.transform.position = new Vector3(go.transform.position.x, -16f, go.transform.position.z);
+                   // go.GetComponentInChildren<TMPro.TextMeshPro>().text = "";
+                }
             }
         }
 
@@ -119,6 +150,8 @@ public class Main : MonoBehaviour
 
             if (f.Persons ==3)
                 go.transform.localScale = new Vector3(20,20,20);
+
+            f.Go = go;
         }
     }
 }

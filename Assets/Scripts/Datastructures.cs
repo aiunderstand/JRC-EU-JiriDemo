@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Family
 {
@@ -13,6 +14,7 @@ public class Family
     public int Persons;
     public string Young_fami;
     public List<Hub> Hubs;
+    public GameObject Go;
 
     public Family(int x, int y, int buurtcode, string postcode, string famid, string family_with, float income, List<string> people, int persons, string young_fami, List<Hub> hubs)
     {
